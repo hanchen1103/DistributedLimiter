@@ -1,5 +1,5 @@
 --限流的接口
-local request = KYES[1]
+local request = KEYS[1]
 
 --令牌桶最大容量
 local maxSize = ARGV[1]
