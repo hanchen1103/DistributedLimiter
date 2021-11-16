@@ -1,19 +1,15 @@
-package Service;
+package service;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisConnection;
-import redis.clients.jedis.Jedis;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.Jedis;
 import util.ScriptUtil;
 
 import java.util.*;
 
 public class DistributedLimit {
 
-    public static final Logger logger = LoggerFactory.getLogger(DistributedLimit.class);
 
     private JedisConnectionFactory jedisConnectionFactory;
 

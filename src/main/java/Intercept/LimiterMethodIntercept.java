@@ -1,6 +1,6 @@
 package Intercept;
 
-import Service.DistributedLimit;
+import service.DistributedLimit;
 import annotation.SpringMethodLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
