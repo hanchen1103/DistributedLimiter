@@ -15,3 +15,5 @@ redis-script不支持函数以及协程（猜测是为了原子性）
 并且用该脚本只从redis参数和redis数据中获取输入，明显os不属于他们，所以错误了。
 
 我的解决方式使用redis的time函数来获取microsecond(毫秒)值，记录每一次的毫秒值，用于下一次相减，并且用1/1000的每秒所放令牌计算累加，加上当前桶中的令牌数。
+
+springboot 2+已经不支持直接创建JedisConnectionFactory,需要配合RedisStandaloneConfigurations使用更加。包括JedisPoolConfig。
