@@ -1,4 +1,4 @@
-package service;
+package com.hanchen.distrubuted.component.service;
 
 
 import org.springframework.data.redis.connection.RedisConnection;
@@ -82,7 +82,7 @@ public class DistributedLimit {
     public boolean isLimit() {
         Object connection = getConnection();
         Object res = limitRequest(connection);
-        return !Objects.equals(LIMIT_CODE, res);
+        return Objects.equals(LIMIT_CODE, res);
     }
 
 
