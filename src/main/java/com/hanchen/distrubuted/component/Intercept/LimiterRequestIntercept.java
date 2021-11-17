@@ -1,7 +1,7 @@
 package com.hanchen.distrubuted.component.Intercept;
 
+import com.hanchen.distrubuted.component.annotation.SpringRequestLimiter;
 import com.hanchen.distrubuted.component.service.DistributedLimit;
-import com.hanchen.distrubuted.SpringRequestLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
