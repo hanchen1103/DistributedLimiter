@@ -1,6 +1,6 @@
 package com.hanchen.distrubuted.component.Intercept;
 
-import com.hanchen.distrubuted.component.service.DistributedLimit;
+import com.hanchen.distrubuted.component.service.RSDistributedLimit;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -19,7 +19,7 @@ public class BaseLimiterIntercept {
     private static final Logger logger = LoggerFactory.getLogger(BaseLimiterIntercept.class);
 
     @Autowired
-    DistributedLimit distributedLimit;
+    RSDistributedLimit distributedLimit;
 
     @Pointcut("@annotation(com.hanchen.distrubuted.component.annotation.BaseLimiter)")
     public void check() {

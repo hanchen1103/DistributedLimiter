@@ -8,7 +8,7 @@ import util.ScriptUtil;
 
 import java.util.*;
 
-public class DistributedLimit {
+public class RSDistributedLimit {
 
 
     private JedisConnectionFactory jedisConnectionFactory;
@@ -48,7 +48,7 @@ public class DistributedLimit {
         script =  ScriptUtil.loadScript("script/limit.lua");
     }
 
-    private DistributedLimit(JedisConnectionFactoryBuilder jedisConnectionFactoryBuilder) {
+    private RSDistributedLimit(JedisConnectionFactoryBuilder jedisConnectionFactoryBuilder) {
         jedisConnectionFactory = jedisConnectionFactoryBuilder.jedisConnectionFactory;
         this.request = jedisConnectionFactoryBuilder.request;
         this.maxSize = jedisConnectionFactoryBuilder.maxSize;
@@ -123,8 +123,8 @@ public class DistributedLimit {
             return this;
         }
 
-        public DistributedLimit create() {
-            return new DistributedLimit(this);
+        public RSDistributedLimit create() {
+            return new RSDistributedLimit(this);
         }
     }
 

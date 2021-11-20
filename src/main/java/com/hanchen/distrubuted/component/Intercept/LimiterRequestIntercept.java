@@ -1,7 +1,7 @@
 package com.hanchen.distrubuted.component.Intercept;
 
 import com.hanchen.distrubuted.component.annotation.SpringRequestLimiter;
-import com.hanchen.distrubuted.component.service.DistributedLimit;
+import com.hanchen.distrubuted.component.service.RSDistributedLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class LimiterRequestIntercept implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(LimiterRequestIntercept.class);
 
-    private DistributedLimit distributedLimit;
+    private RSDistributedLimit distributedLimit;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

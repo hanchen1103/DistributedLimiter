@@ -3,7 +3,7 @@ package com.hanchen.distrubuted.component.service;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import util.ScriptUtil;
 
-public class DistributedLock {
+public class RSDistributedLock {
 
     private JedisConnectionFactory jedisConnectionFactory;
 
