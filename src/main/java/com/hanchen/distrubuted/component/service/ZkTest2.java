@@ -22,6 +22,6 @@ public class ZkTest2 {
 
 
 //        zk.addWatch("zookeeper/locl/request", AddWatchMode.PERSISTENT_RECURSIVE);
-//        Thread.sleep(1000 * 30);
+        Thread.sleep(1000 * 30);
     }
 }

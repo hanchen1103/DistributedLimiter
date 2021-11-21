@@ -20,7 +20,9 @@ public class ZKDistributedLock {
     public Boolean getLock() {
         Thread thread = new Thread(zkDistributedThread);
         thread.start();
-        return true;
+        while(zkDistributedThread.isLock == null) {
+        }
+        return zkDistributedThread.isLock;
     }
 
 }

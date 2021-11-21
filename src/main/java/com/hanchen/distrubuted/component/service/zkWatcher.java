@@ -27,13 +27,11 @@ public class zkWatcher implements Watcher {
     }
 
     public static void main(String[] args) throws InterruptedException, KeeperException, IOException {
-        String path = "/zookeeper/watch";
 
         zooKeeper.create("/zookeeper/watch", "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
                     CreateMode.PERSISTENT);
-        Thread.sleep(1000);
         System.out.println("-----------------");
-        Stat stat = zooKeeper.exists(path, true);
+        Stat stat = zooKeeper.exists("/zookeeper/watch", true);
         System.in.read();
     }
 }
