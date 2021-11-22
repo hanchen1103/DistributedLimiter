@@ -59,7 +59,6 @@ public class ZKDistributedThread implements Runnable, Watcher{
             zkLockWatcher = new ZkLockWatcher();
             zkLockWatcher.create(connectionString, sessionTimeout);
             zooKeeper = new ZooKeeper(connectString, sessinonTimeout, event -> {
-
             });
             logger.info(String.valueOf(zooKeeper.getState()));
             this.basePath = basePath;
@@ -87,14 +86,20 @@ public class ZKDistributedThread implements Runnable, Watcher{
                 logger.error(e.getMessage());
             }
         }
-            try {
-                while (isConnecting) {
-                    Thread.sleep(1000);
-                }
-            } catch (InterruptedException exception) {
-                logger.error(exception.getMessage());
-            }
+        while (isConnecting) {
+            Thread.onSpinWait();
+        }
+    }
 
+    public void unLockNoBlocking() {
+        try {
+            zooKeeper.delete(basePath + "/" + lockValue, -1);
+            logger.info("unlock: " + basePath + "/" + lockValue + " successfully");
+        } catch (InterruptedException | KeeperException e) {
+            logger.error(e.getMessage());
+        } finally {
+            isConnecting = false;
+        }
     }
 
 

@@ -14,7 +14,8 @@ public class ZKDistributedLock {
     }
 
     public void unLock() {
-        zkDistributedThread.isConnecting = false;
+        zkDistributedThread.unLockNoBlocking();
+
     }
 
     public Boolean getLock() {

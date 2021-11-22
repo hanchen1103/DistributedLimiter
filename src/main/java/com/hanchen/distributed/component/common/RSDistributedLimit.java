@@ -57,6 +57,10 @@ public class RSDistributedLimit {
         loadScript();
     }
 
+    public void setRequest(String request) {
+        this.request = request;
+    }
+
     private Object limitRequest(Object connection) {
         Object res = null;
         List<String> keys = new ArrayList<>();
