@@ -23,7 +23,6 @@ public class ZKDistributedThread implements Runnable, Watcher{
      */
     private String basePath = "/lock";
 
-
     public volatile boolean isConnecting = true;
 
     public volatile Boolean isLock = null;
@@ -34,6 +33,7 @@ public class ZKDistributedThread implements Runnable, Watcher{
 
     protected int sessionTimeout;
 
+    public Long createTime;
 
     public void setLockValue(String lockValue) {
         this.lockValue = lockValue;
@@ -52,10 +52,12 @@ public class ZKDistributedThread implements Runnable, Watcher{
         }
     }
 
-    public ZKDistributedThread create(String basePath, String connectString, int sessinonTimeout) {
+    public ZKDistributedThread create(String basePath, String connectString, int sessinonTimeout, String lockValue) {
         try {
+            this.createTime = System.currentTimeMillis();
             this.connectionString = connectString;
             this.sessionTimeout = sessinonTimeout;
+            this.lockValue = lockValue;
             zkLockWatcher = new ZkLockWatcher();
             zkLockWatcher.create(connectionString, sessionTimeout);
             zooKeeper = new ZooKeeper(connectString, sessinonTimeout, event -> {
@@ -74,17 +76,20 @@ public class ZKDistributedThread implements Runnable, Watcher{
             res = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } catch (KeeperException | InterruptedException e) {
-            logger.error("connecting error or zookeeper path error");
+            isConnecting = isLock = false;
+            logger.error(Thread.currentThread() + "connecting error or zookeeper path error");
+            logger.warn(Thread.currentThread() + "get lock failure: " + isLock);
         }
         isLock = res != null;
         if(isLock) {
-            logger.info("zookeeper get lock successful - lock is: " + res);
+            logger.info(Thread.currentThread() + "zookeeper get lock successful - lock is: " + res);
         } else {
             try {
                 zkLockWatcher.exists(basePath + "/" + lockValue);
             } catch (KeeperException | InterruptedException e){
                 logger.error(e.getMessage());
             }
+            return ;
         }
         while (isConnecting) {
             Thread.onSpinWait();
@@ -93,8 +98,10 @@ public class ZKDistributedThread implements Runnable, Watcher{
 
     public void unLockNoBlocking() {
         try {
-            zooKeeper.delete(basePath + "/" + lockValue, -1);
-            logger.info("unlock: " + basePath + "/" + lockValue + " successfully");
+            if(isLock != null && isLock) {
+                zooKeeper.delete(basePath + "/" + lockValue, -1);
+                logger.info("unlock: " + basePath + "/" + lockValue + " successfully");
+            }
         } catch (InterruptedException | KeeperException e) {
             logger.error(e.getMessage());
         } finally {

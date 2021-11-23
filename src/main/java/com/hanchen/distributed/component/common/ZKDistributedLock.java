@@ -1,28 +1,67 @@
 package com.hanchen.distributed.component.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Comparator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class ZKDistributedLock {
 
-    ZKDistributedThread zkDistributedThread;
+    private static final Logger logger = LoggerFactory.getLogger(ZKDistributedLock.class);
 
+    private String connectString;
+
+    private String basePath;
+
+    private int sessionTimeout;
+
+    private String lockValue;
+
+    private static ConcurrentSkipListSet<ZKDistributedThread> zkDistributedThreadSet;
+
+    /**
+     * 设置加锁值
+     * @param lockValue 锁值
+     */
     public void setLockValue(String lockValue) {
-        zkDistributedThread.setLockValue(lockValue);
+        this.lockValue = lockValue;
     }
 
-    public ZKDistributedLock(String basePath, String connectString, int sessinonTimeout) {
-        zkDistributedThread = new ZKDistributedThread().create(basePath,
-                connectString, sessinonTimeout);
+    public ZKDistributedLock(String basePath, String connectString, int sessionTimeout) {
+        this.basePath = basePath;
+        this.connectString = connectString;
+        this.sessionTimeout = sessionTimeout;
+        zkDistributedThreadSet = new ConcurrentSkipListSet<>(Comparator.comparing(i -> i.createTime));
     }
 
+    /**
+     * 手动解锁
+     */
     public void unLock() {
-        zkDistributedThread.unLockNoBlocking();
-
+        while(!zkDistributedThreadSet.isEmpty()) {
+            ZKDistributedThread zkDistributedThread = zkDistributedThreadSet.pollFirst();
+            assert zkDistributedThread != null;
+            zkDistributedThread.unLockNoBlocking();
+        }
     }
 
+    /**
+     * 获取锁
+     * @return 是否获取到锁
+     */
     public Boolean getLock() {
+        ZKDistributedThread zkDistributedThread = new ZKDistributedThread().
+                create(this.basePath, this.connectString, this.sessionTimeout, this.lockValue);
         Thread thread = new Thread(zkDistributedThread);
         thread.start();
         while(zkDistributedThread.isLock == null) {
         }
+        if(zkDistributedThread.isLock) {
+            zkDistributedThreadSet.add(zkDistributedThread);
+        }
+        System.out.println("-----------------" + zkDistributedThread.isLock + "----------------");
         return zkDistributedThread.isLock;
     }
 
