@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 
-public class ZKDistributedThread implements Runnable, Watcher{
+public class ZKDistributedThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ZKDistributedThread.class);
 
@@ -27,7 +27,7 @@ public class ZKDistributedThread implements Runnable, Watcher{
 
     public volatile Boolean isLock = null;
 
-    private ZkLockWatcher zkLockWatcher;
+    //private ZkLockWatcher zkLockWatcher;
 
     protected String connectionString;
 
@@ -39,18 +39,18 @@ public class ZKDistributedThread implements Runnable, Watcher{
         this.lockValue = lockValue;
     }
 
-    @Override
-    public void process(WatchedEvent event) {
-        logger.info("eventType: " + event.getType());
-        if(event.getType() == Event.EventType.NodeDeleted) {
-            try {
-                zooKeeper.exists(event.getPath(), true);
-            } catch (KeeperException | InterruptedException e) {
-                e.printStackTrace();
-                logger.error(e.getMessage());
-            }
-        }
-    }
+//    @Override
+//    public void process(WatchedEvent event) {
+//        logger.info("eventType: " + event.getType());
+//        if(event.getType() == Event.EventType.NodeDeleted) {
+//            try {
+//                zooKeeper.exists(event.getPath(), true);
+//            } catch (KeeperException | InterruptedException e) {
+//                e.printStackTrace();
+//                logger.error(e.getMessage());
+//            }
+//        }
+//    }
 
     public ZKDistributedThread create(String basePath, String connectString, int sessinonTimeout, String lockValue) {
         try {
@@ -58,11 +58,10 @@ public class ZKDistributedThread implements Runnable, Watcher{
             this.connectionString = connectString;
             this.sessionTimeout = sessinonTimeout;
             this.lockValue = lockValue;
-            zkLockWatcher = new ZkLockWatcher();
-            zkLockWatcher.create(connectionString, sessionTimeout);
+            //zkLockWatcher = new ZkLockWatcher();
+            //zkLockWatcher.create(connectionString, sessionTimeout);
             zooKeeper = new ZooKeeper(connectString, sessinonTimeout, event -> {
             });
-            logger.info(String.valueOf(zooKeeper.getState()));
             this.basePath = basePath;
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -77,18 +76,17 @@ public class ZKDistributedThread implements Runnable, Watcher{
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } catch (KeeperException | InterruptedException e) {
             isConnecting = isLock = false;
-            logger.error(Thread.currentThread() + "connecting error or zookeeper path error");
-            logger.warn(Thread.currentThread() + "get lock failure: " + isLock);
+            logger.error(Thread.currentThread() + "get lock failure: " + isLock);
         }
         isLock = res != null;
         if(isLock) {
             logger.info(Thread.currentThread() + "zookeeper get lock successful - lock is: " + res);
         } else {
-            try {
-                zkLockWatcher.exists(basePath + "/" + lockValue);
-            } catch (KeeperException | InterruptedException e){
-                logger.error(e.getMessage());
-            }
+//            try {
+//                zkLockWatcher.exists(basePath + "/" + lockValue);
+//            } catch (KeeperException | InterruptedException e){
+//                logger.error(e.getMessage());
+//            }
             return ;
         }
         while (isConnecting) {

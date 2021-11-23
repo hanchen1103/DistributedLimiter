@@ -8,7 +8,6 @@ public class zkTest {
         public void run() {
             zkDistributedLock.setLockValue("aba");
             Boolean res = zkDistributedLock.getLock();
-            System.out.println("-----------------------" + "Thread:" + res);
             zkDistributedLock.unLock();
         }
     }
@@ -33,14 +32,19 @@ public class zkTest {
 //        System.out.println("testing-----------");
 //        System.out.println(res);
         //zkDistributedLock.unLock();
-        zkDistributedLock = new ZKDistributedLock("/zookeeper", "110.40.192.207:2181", 4000);
-        for(int i = 0; i < 10; i ++) {
-            Thread t = new Thread(new testThread());
-            t.start();
-            Thread.sleep(100);
-        }
-//        Thread t = new Thread(new testThread());
-//        t.start();
+        zkDistributedLock = new ZKDistributedLock("/zookeeper", "110.40.192.207:2181", 1000);
+//        for(int i = 0; i < 10; i ++) {
+//            Thread t = new Thread(new testThread());
+//            t.start();
+//            Thread.sleep(100);
+//        }
+
+        Long start = System.currentTimeMillis();
+        zkDistributedLock.setLockValue("ababab");
+        zkDistributedLock.getLock();
+        zkDistributedLock.unLock();
+        Long end = System.currentTimeMillis();
+        System.out.println(end - start);
 //        Thread a = new Thread(new testThread());
 //        a.start();
     }

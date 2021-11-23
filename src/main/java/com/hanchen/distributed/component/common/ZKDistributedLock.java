@@ -61,7 +61,6 @@ public class ZKDistributedLock {
         if(zkDistributedThread.isLock) {
             zkDistributedThreadSet.add(zkDistributedThread);
         }
-        System.out.println("-----------------" + zkDistributedThread.isLock + "----------------");
         return zkDistributedThread.isLock;
     }
 
