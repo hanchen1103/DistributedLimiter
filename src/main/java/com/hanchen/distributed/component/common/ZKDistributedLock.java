@@ -4,12 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
-import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ZKDistributedLock {
 
-    private static final Logger logger = LoggerFactory.getLogger(ZKDistributedLock.class);
 
     private String connectString;
 
@@ -43,7 +41,7 @@ public class ZKDistributedLock {
         while(!zkDistributedThreadSet.isEmpty()) {
             ZKDistributedThread zkDistributedThread = zkDistributedThreadSet.pollFirst();
             assert zkDistributedThread != null;
-            zkDistributedThread.unLockNoBlocking();
+            zkDistributedThread.timeToUnLock = true;
         }
     }
 
@@ -57,6 +55,7 @@ public class ZKDistributedLock {
         Thread thread = new Thread(zkDistributedThread);
         thread.start();
         while(zkDistributedThread.isLock == null) {
+            Thread.onSpinWait();
         }
         if(zkDistributedThread.isLock) {
             zkDistributedThreadSet.add(zkDistributedThread);

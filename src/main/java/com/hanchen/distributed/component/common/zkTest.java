@@ -26,13 +26,8 @@ public class zkTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
-//        zkDistributedLock = new ZKDistributedLock("/zookeeper", "110.40.192.207:2181", 4000);
-//        zkDistributedLock.setLockValue("aba");
-//        Boolean res = zkDistributedLock.getLock();
-//        System.out.println("testing-----------");
-//        System.out.println(res);
-        //zkDistributedLock.unLock();
-        zkDistributedLock = new ZKDistributedLock("/zookeeper", "110.40.192.207:2181", 1000);
+
+        zkDistributedLock = new ZKDistributedLock("/zookeeper", "127.0.0.1:2181", 1000);
 //        for(int i = 0; i < 10; i ++) {
 //            Thread t = new Thread(new testThread());
 //            t.start();
@@ -40,9 +35,12 @@ public class zkTest {
 //        }
 
         Long start = System.currentTimeMillis();
-        zkDistributedLock.setLockValue("ababab");
-        zkDistributedLock.getLock();
-        zkDistributedLock.unLock();
+        for(int i = 0; i < 10; i ++)
+        {
+            zkDistributedLock.setLockValue("ababab");
+            zkDistributedLock.getLock();
+            zkDistributedLock.unLock();
+        }
         Long end = System.currentTimeMillis();
         System.out.println(end - start);
 //        Thread a = new Thread(new testThread());

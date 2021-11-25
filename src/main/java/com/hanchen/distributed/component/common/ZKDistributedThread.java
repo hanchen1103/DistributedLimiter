@@ -35,9 +35,8 @@ public class ZKDistributedThread implements Runnable {
 
     public Long createTime;
 
-    public void setLockValue(String lockValue) {
-        this.lockValue = lockValue;
-    }
+    public volatile Boolean timeToUnLock = false;
+
 
 //    @Override
 //    public void process(WatchedEvent event) {
@@ -70,42 +69,50 @@ public class ZKDistributedThread implements Runnable {
     }
 
     public void getLockNoBlocking() {
-        String res = null;
+        String res;
         try {
             res = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } catch (KeeperException | InterruptedException e) {
             isConnecting = isLock = false;
-            logger.error(Thread.currentThread() + "get lock failure: " + isLock);
+            logger.error(Thread.currentThread().getName() + "-zookeeper get lock failure: " + isLock);
+            return ;
         }
         isLock = res != null;
         if(isLock) {
-            logger.info(Thread.currentThread() + "zookeeper get lock successful - lock is: " + res);
-        } else {
+            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + res);
+            try {
+                while(!timeToUnLock) {
+                    Thread.onSpinWait();
+                }
+                zooKeeper.delete(basePath + "/" + lockValue, -1);
+                logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
+            } catch (InterruptedException | KeeperException e) {
+                logger.error(e.getMessage());
+            } finally {
+                isConnecting = false;
+            }
+        }
+
 //            try {
 //                zkLockWatcher.exists(basePath + "/" + lockValue);
 //            } catch (KeeperException | InterruptedException e){
 //                logger.error(e.getMessage());
 //            }
-            return ;
-        }
-        while (isConnecting) {
-            Thread.onSpinWait();
-        }
     }
 
-    public void unLockNoBlocking() {
-        try {
-            if(isLock != null && isLock) {
-                zooKeeper.delete(basePath + "/" + lockValue, -1);
-                logger.info("unlock: " + basePath + "/" + lockValue + " successfully");
-            }
-        } catch (InterruptedException | KeeperException e) {
-            logger.error(e.getMessage());
-        } finally {
-            isConnecting = false;
-        }
-    }
+//    public void unLockNoBlocking() {
+//        try {
+//            if(isLock != null && isLock) {
+//                zooKeeper.delete(basePath + "/" + lockValue, -1);
+//                logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
+//            }
+//        } catch (InterruptedException | KeeperException e) {
+//            logger.error(e.getMessage());
+//        } finally {
+//            isConnecting = false;
+//        }
+//    }
 
 
     @Override

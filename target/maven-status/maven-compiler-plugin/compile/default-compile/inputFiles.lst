@@ -5,6 +5,7 @@
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkTest2.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZKDistributedThread.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/RSDistributedLimit.java
+/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkdaemonThread.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/zkWatcher.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkLockWatcher.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/RSDistributedLock.java
