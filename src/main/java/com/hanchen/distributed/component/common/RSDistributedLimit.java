@@ -59,30 +59,16 @@ public class RSDistributedLimit {
         this.secondToken = jedisBuilder.secondToken;
         this.wasteTicket = jedisBuilder.wasteTicket;
         loadScript();
+
     }
+
 
     public void setRequest(String request) {
         this.request = request;
-        deleteRequest(request);
         logger.info("TokenBucket[request: " + request + " maxSize:" + maxSize + " addToken:" +
                 secondToken + "/s wasterToken" + wasteTicket + "/s");
     }
 
-    private void deleteRequest(String request) {
-        if(jedis instanceof Jedis) {
-            if(((Jedis) jedis).hexists("token-bucket-remainticket", request)) {
-                logger.warn("request wasalready existed, it's will be overwritten");
-            }
-            jedis.hdel("token-bucket-remainticket", request);
-            jedis.hdel("token-bucket-premicrosecond", request);
-        } else if (jedis instanceof JedisCluster){
-            if(((JedisCluster) jedis).hexists("token-bucket-remainticket", request)) {
-                logger.warn("request wasalready existed, it's will be overwritten");
-            }
-            jedis.hdel("token-bucket-remainticket", request);
-            jedis.hdel("token-bucket-premicrosecond", request);
-        }
-    }
 
     private Object limitRequest() {
         if(request == null || request.isEmpty()) {
@@ -151,6 +137,7 @@ public class RSDistributedLimit {
         public RSDistributedLimit create() {
             return new RSDistributedLimit(this);
         }
+
     }
 
 }

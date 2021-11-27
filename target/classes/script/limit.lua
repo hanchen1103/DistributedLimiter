@@ -12,7 +12,7 @@ local wasteticket = tonumber(ARGV[3])
 
 --获取当限时间
 local curTime = redis.call('time')
-local curMicrosecond = (curTime[1] * 1000000 + curTime[2]) / 1000
+local curMicrosecond = math.floor((curTime[1] * 1000000 + curTime[2]) / 1000)
 
 --上一次接口请求的时间
 local preMicrosecond = redis.call('hget', 'token-bucket-premicrosecond', request)
@@ -35,7 +35,7 @@ end
 local timediff = curMicrosecond - preMicrosecond
 
 if(timediff ~= nil and timediff > 0) then
-	local addToken = (secondToken / 1000) * timediff
+	local addToken = math.floor((secondToken / 1000)) * timediff
 	if addToken + cur > maxSize then
 		cur = maxSize
 	else
