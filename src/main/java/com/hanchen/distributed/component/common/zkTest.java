@@ -27,21 +27,22 @@ public class zkTest {
 
     public static void main(String[] args) throws InterruptedException {
 
-        zkDistributedLock = new ZKDistributedLock("/zookeeper", "127.0.0.1:2181", 1000);
-//        for(int i = 0; i < 10; i ++) {
-//            Thread t = new Thread(new testThread());
-//            t.start();
-//            Thread.sleep(100);
-//        }
-
+        zkDistributedLock =
+                new ZKDistributedLock("/zookeeper", "127.0.0.1:2181", 1000);
         Long start = System.currentTimeMillis();
-        for(int i = 0; i < 10; i ++)
-        {
-            zkDistributedLock.setLockValue("ababab");
-            zkDistributedLock.getLock();
-            zkDistributedLock.unLock();
+        for(int i = 0; i < 10; i ++) {
+            Thread t = new Thread(new testThread());
+            t.start();
+            Thread.sleep(100);
         }
         Long end = System.currentTimeMillis();
+
+//        for(int i = 0; i < 10; i ++)
+//        {
+//            zkDistributedLock.setLockValue("ababab");
+//            zkDistributedLock.getLock();
+//            zkDistributedLock.unLock();
+//        }
         System.out.println(end - start);
 //        Thread a = new Thread(new testThread());
 //        a.start();

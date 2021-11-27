@@ -1,9 +1,10 @@
 package com.hanchen.distributed.component.common;
 
 
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import com.hanchen.distributed.component.constant.RedisType;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.commands.JedisCommands;
 import util.ScriptUtil;
 
 import java.util.*;
@@ -11,7 +12,8 @@ import java.util.*;
 public class RSDistributedLimit {
 
 
-    private JedisConnectionFactory jedisConnectionFactory;
+    private JedisCommands jedis;
+
 
     /**
      * lua脚本
@@ -48,12 +50,12 @@ public class RSDistributedLimit {
         script =  ScriptUtil.loadScript("script/limit.lua");
     }
 
-    private RSDistributedLimit(JedisConnectionFactoryBuilder jedisConnectionFactoryBuilder) {
-        jedisConnectionFactory = jedisConnectionFactoryBuilder.jedisConnectionFactory;
-        this.request = jedisConnectionFactoryBuilder.request;
-        this.maxSize = jedisConnectionFactoryBuilder.maxSize;
-        this.secondToken = jedisConnectionFactoryBuilder.secondToken;
-        this.wasteTicket = jedisConnectionFactoryBuilder.wasteTicket;
+    private RSDistributedLimit(JedisBuilder jedisBuilder) {
+        jedis = jedisBuilder.jedis;
+        this.request = jedisBuilder.request;
+        this.maxSize = jedisBuilder.maxSize;
+        this.secondToken = jedisBuilder.secondToken;
+        this.wasteTicket = jedisBuilder.wasteTicket;
         loadScript();
     }
 
@@ -61,36 +63,31 @@ public class RSDistributedLimit {
         this.request = request;
     }
 
-    private Object limitRequest(Object connection) {
-        Object res = null;
+    private Object limitRequest() {
+        Object res;
         List<String> keys = new ArrayList<>();
         keys.add(request);
         List<String> argv = new ArrayList<>();
         argv.add(String.valueOf(maxSize));
         argv.add(String.valueOf(secondToken));
         argv.add(String.valueOf(wasteTicket));
-        if(connection instanceof Jedis) {
-            res = ((Jedis) connection).eval(script, keys, argv);
-            ((Jedis) connection).close();
+        if(jedis instanceof Jedis) {
+            res = this.jedis.eval(script, keys, argv);
+        } else if (jedis instanceof JedisCluster){
+            res = this.jedis.eval(script, keys, argv);
+        } else {
+            return 0L;
         }
         return res;
     }
 
-    private Object getConnection() {
-        Object connection;
-        RedisConnection redisConnection = jedisConnectionFactory.getConnection();
-        connection = redisConnection.getNativeConnection();
-        return connection;
-    }
-
     public boolean isLimit() {
-        Object connection = getConnection();
-        Object res = limitRequest(connection);
+        Object res = limitRequest();
         return Objects.equals(LIMIT_CODE, res);
     }
 
 
-    public static class JedisConnectionFactoryBuilder {
+    public static class JedisBuilder<T extends JedisCluster> {
 
         private String request = "index";
 
@@ -101,28 +98,28 @@ public class RSDistributedLimit {
         private int wasteTicket = 1;
 
 
-        public JedisConnectionFactory jedisConnectionFactory;
+        public T jedis ;
 
-        public JedisConnectionFactoryBuilder(JedisConnectionFactory jedisConnectionFactory) {
-            this.jedisConnectionFactory = jedisConnectionFactory;
+        public JedisBuilder(T jedisCommands) {
+            this.jedis = jedisCommands;
         }
 
-        public JedisConnectionFactoryBuilder request(String request) {
+        public JedisBuilder request(String request) {
             this.request = request;
             return this;
         }
 
-        public JedisConnectionFactoryBuilder maxSize(int maxSize) {
+        public JedisBuilder maxSize(int maxSize) {
             this.maxSize = maxSize;
             return this;
         }
 
-        public JedisConnectionFactoryBuilder secondToken(int secondToken) {
+        public JedisBuilder secondToken(int secondToken) {
             this.secondToken = secondToken;
             return this;
         }
 
-        public JedisConnectionFactoryBuilder wasteTicket(int wasteTicket) {
+        public JedisBuilder wasteTicket(int wasteTicket) {
             this.wasteTicket = wasteTicket;
             return this;
         }
