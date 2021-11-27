@@ -2,15 +2,9 @@
 /Users/hanchenzhu/DistributedLimit/src/main/java/util/ScriptUtil.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/intercept/LimiterRequestIntercept.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/annotation/BaseLimiter.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkTest2.java
+/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/RSDistributedLock.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZKDistributedThread.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/RSDistributedLimit.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/constant/RedisType.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkdaemonThread.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/zkWatcher.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZkLockWatcher.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/RSDistributedLock.java
-/Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/zkTest.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/common/ZKDistributedLock.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/intercept/SpringWebConfig.java
 /Users/hanchenzhu/DistributedLimit/src/main/java/com/hanchen/distributed/component/intercept/BaseLimiterIntercept.java

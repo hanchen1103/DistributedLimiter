@@ -63,11 +63,31 @@ public class RSDistributedLimit {
 
     public void setRequest(String request) {
         this.request = request;
+        deleteRequest(request);
         logger.info("TokenBucket[request: " + request + " maxSize:" + maxSize + " addToken:" +
                 secondToken + "/s wasterToken" + wasteTicket + "/s");
     }
 
+    private void deleteRequest(String request) {
+        if(jedis instanceof Jedis) {
+            if(((Jedis) jedis).hexists("token-bucket-remainticket", request)) {
+                logger.warn("request wasalready existed, it's will be overwritten");
+            }
+            jedis.hdel("token-bucket-remainticket", request);
+            jedis.hdel("token-bucket-premicrosecond", request);
+        } else if (jedis instanceof JedisCluster){
+            if(((JedisCluster) jedis).hexists("token-bucket-remainticket", request)) {
+                logger.warn("request wasalready existed, it's will be overwritten");
+            }
+            jedis.hdel("token-bucket-remainticket", request);
+            jedis.hdel("token-bucket-premicrosecond", request);
+        }
+    }
+
     private Object limitRequest() {
+        if(request == null || request.isEmpty()) {
+            throw new NullPointerException("request should be initialized！");
+        }
         Object res;
         List<String> keys = new ArrayList<>();
         keys.add(request);
@@ -93,7 +113,7 @@ public class RSDistributedLimit {
 
     public static class JedisBuilder<T extends JedisCommands> {
 
-        private String request = "index";
+        private String request;
 
         private int maxSize = 200;
 
@@ -129,8 +149,6 @@ public class RSDistributedLimit {
         }
 
         public RSDistributedLimit create() {
-            jedis.hdel("token-bucket-remainticket", request);
-            jedis.hdel("token-bucket-premicrosecond", request);
             return new RSDistributedLimit(this);
         }
     }
