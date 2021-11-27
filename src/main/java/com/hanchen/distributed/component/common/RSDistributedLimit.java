@@ -1,7 +1,6 @@
 package com.hanchen.distributed.component.common;
 
 
-import com.hanchen.distributed.component.constant.RedisType;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.commands.JedisCommands;
