@@ -71,9 +71,9 @@ public class RSDistributedLimit {
         argv.add(String.valueOf(secondToken));
         argv.add(String.valueOf(wasteTicket));
         if(jedis instanceof Jedis) {
-            res = this.jedis.eval(script, keys, argv);
+            res = ((Jedis) this.jedis).eval(script, keys, argv);
         } else if (jedis instanceof JedisCluster){
-            res = this.jedis.eval(script, keys, argv);
+            res = ((JedisCluster) this.jedis).eval(script, keys, argv);
         } else {
             return 0L;
         }
