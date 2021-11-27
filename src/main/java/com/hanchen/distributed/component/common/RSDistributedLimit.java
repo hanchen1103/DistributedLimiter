@@ -86,7 +86,7 @@ public class RSDistributedLimit {
     }
 
 
-    public static class JedisBuilder<T extends JedisCluster> {
+    public static class JedisBuilder<T extends JedisCommands> {
 
         private String request = "index";
 
