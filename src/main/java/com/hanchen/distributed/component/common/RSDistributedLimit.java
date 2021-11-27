@@ -1,6 +1,7 @@
 package com.hanchen.distributed.component.common;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.commands.JedisCommands;
@@ -9,6 +10,8 @@ import util.ScriptUtil;
 import java.util.*;
 
 public class RSDistributedLimit {
+
+    private static final Logger logger = LoggerFactory.getLogger(RSDistributedLimit.class);
 
 
     private JedisCommands jedis;
@@ -60,6 +63,8 @@ public class RSDistributedLimit {
 
     public void setRequest(String request) {
         this.request = request;
+        logger.info("TokenBucket[request: " + request + " maxSize:" + maxSize + " addToken:" +
+                secondToken + "/s wasterToken" + wasteTicket + "/s");
     }
 
     private Object limitRequest() {
@@ -124,6 +129,8 @@ public class RSDistributedLimit {
         }
 
         public RSDistributedLimit create() {
+            jedis.hdel("token-bucket-remainticket", request);
+            jedis.hdel("token-bucket-premicrosecond", request);
             return new RSDistributedLimit(this);
         }
     }
