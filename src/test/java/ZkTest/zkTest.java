@@ -1,4 +1,6 @@
-package com.hanchen.distributed.component.common;
+package ZkTest;
+
+import com.hanchen.distributed.component.common.ZKDistributedLock;
 
 public class zkTest {
 

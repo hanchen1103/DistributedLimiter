@@ -1,4 +1,4 @@
-package com.hanchen.distributed.component.common;
+package ZkTest;
 
 import org.apache.zookeeper.*;
 
@@ -7,11 +7,10 @@ import java.io.IOException;
 
 public class ZkTest2 {
 
-    static ZooKeeper zooKeeper;
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         Long startTime = System.currentTimeMillis();
-        zooKeeper = new ZooKeeper("127.0.0.1:2181", 1000, event -> {
+        ZooKeeper zooKeeper = new ZooKeeper("127.0.0.1:2181", 1000, event -> {
         });
         zooKeeper.create("/zookeeper/ababa", "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         zooKeeper.delete("/zookeeper/ababa", -1);

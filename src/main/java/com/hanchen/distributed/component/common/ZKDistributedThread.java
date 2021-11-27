@@ -27,8 +27,6 @@ public class ZKDistributedThread implements Runnable {
 
     public volatile Boolean isLock = null;
 
-    //private ZkLockWatcher zkLockWatcher;
-
     protected String connectionString;
 
     protected int sessionTimeout;
@@ -38,27 +36,12 @@ public class ZKDistributedThread implements Runnable {
     public volatile Boolean timeToUnLock = false;
 
 
-//    @Override
-//    public void process(WatchedEvent event) {
-//        logger.info("eventType: " + event.getType());
-//        if(event.getType() == Event.EventType.NodeDeleted) {
-//            try {
-//                zooKeeper.exists(event.getPath(), true);
-//            } catch (KeeperException | InterruptedException e) {
-//                e.printStackTrace();
-//                logger.error(e.getMessage());
-//            }
-//        }
-//    }
-
     public ZKDistributedThread create(String basePath, String connectString, int sessinonTimeout, String lockValue) {
         try {
             this.createTime = System.currentTimeMillis();
             this.connectionString = connectString;
             this.sessionTimeout = sessinonTimeout;
             this.lockValue = lockValue;
-            //zkLockWatcher = new ZkLockWatcher();
-            //zkLockWatcher.create(connectionString, sessionTimeout);
             zooKeeper = new ZooKeeper(connectString, sessinonTimeout, event -> {
             });
             this.basePath = basePath;
@@ -94,26 +77,7 @@ public class ZKDistributedThread implements Runnable {
             }
         }
 
-//            try {
-//                zkLockWatcher.exists(basePath + "/" + lockValue);
-//            } catch (KeeperException | InterruptedException e){
-//                logger.error(e.getMessage());
-//            }
     }
-
-//    public void unLockNoBlocking() {
-//        try {
-//            if(isLock != null && isLock) {
-//                zooKeeper.delete(basePath + "/" + lockValue, -1);
-//                logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
-//            }
-//        } catch (InterruptedException | KeeperException e) {
-//            logger.error(e.getMessage());
-//        } finally {
-//            isConnecting = false;
-//        }
-//    }
-
 
     @Override
     public void run() {
