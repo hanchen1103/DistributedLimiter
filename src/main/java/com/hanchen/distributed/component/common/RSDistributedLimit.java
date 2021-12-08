@@ -106,7 +106,6 @@ public class RSDistributedLimit {
 
         private int wasteTicket = 1;
 
-
         public T jedis ;
 
         public JedisBuilder(T jedisCommands) {

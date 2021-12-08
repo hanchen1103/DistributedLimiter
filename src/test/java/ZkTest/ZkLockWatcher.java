@@ -26,8 +26,7 @@ public class ZkLockWatcher extends ZKDistributedThread implements Watcher{
     }
 
     public Stat exists(String path) throws InterruptedException, KeeperException {
-        Stat stat = zooKeeper.exists(path, true);
-        return stat;
+        return zooKeeper.exists(path, true);
     }
 
     @Override
