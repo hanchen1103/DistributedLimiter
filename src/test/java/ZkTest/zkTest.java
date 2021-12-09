@@ -32,11 +32,8 @@ public class zkTest {
         zkDistributedLock =
                 new ZKDistributedLock("/zookeeper", "127.0.0.1:2181", 1000);
         Long start = System.currentTimeMillis();
-        for(int i = 0; i < 10; i ++) {
-            Thread t = new Thread(new testThread());
-            t.start();
-            Thread.sleep(100);
-        }
+        Thread t = new Thread(new testThread());
+        t.start();
         Long end = System.currentTimeMillis();
 
 //        for(int i = 0; i < 10; i ++)

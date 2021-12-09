@@ -68,16 +68,16 @@ public class RSDistributedLock {
         List<String> keysList = new ArrayList<>();
         keysList.add(requestKey);
         List<String> argvList = new ArrayList<>();
-        argvList.add(requestKey);
         argvList.add(requestValue);
         argvList.add(String.valueOf(lockTime));
         Object res = null;
+
         if (jedisCommands instanceof Jedis) {
             res = ((Jedis) this.jedisCommands).eval(lockScript, keysList, argvList);
         } else if (jedisCommands instanceof JedisCluster) {
             res = ((JedisCluster) this.jedisCommands).eval(lockScript, keysList, argvList);
         }
-        Boolean isLock = (res != null && !res.equals("-1"));
+        Boolean isLock = (res != null && res.equals("OK"));
         if(isLock) {
             logger.info("getLock successfully");
         } else {
@@ -96,10 +96,14 @@ public class RSDistributedLock {
         if (jedisCommands instanceof Jedis) {
             res = ((Jedis) this.jedisCommands).eval(unLockScript, keysList, argvList);
         } else if (jedisCommands instanceof JedisCluster) {
-            res = ((JedisCluster) this.jedisCommands).eval(lockScript, keysList, argvList);
+            res = ((JedisCluster) this.jedisCommands).eval(unLockScript, keysList, argvList);
         }
-        Boolean isLock = (res != null && !res.equals("-1"));
-
+        boolean isLock = (res != null && !res.equals("-1"));
+        if(isLock) {
+            logger.info("unLock successfully");
+        } else {
+            logger.error("unLock failure");
+        }
     }
 
     public static class RsLockBuilder<T extends JedisCommands> {
@@ -137,7 +141,5 @@ public class RSDistributedLock {
 
 
     }
-
-
 
 }
