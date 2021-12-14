@@ -5,22 +5,27 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ZKThread implements Runnable{
+public class ZKThread implements Runnable, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ZKDistributedThread.class);
 
+    @Serial
+    private static final long serialVersionUID = -8215132982176492001L;
+
     public static ZooKeeper zooKeeper;
 
-    public static volatile boolean createFlag = false;
+    public static volatile AtomicBoolean createFlag = new AtomicBoolean(false);
 
-    public static volatile boolean deleteFlag = false;
+    public static volatile AtomicBoolean deleteFlag = new AtomicBoolean(false);
 
     private static AtomicLong count = new AtomicLong(0);
 
@@ -32,24 +37,65 @@ public class ZKThread implements Runnable{
 
     private static Integer TimeOut = 4000;
 
+    /**
+     * 占用锁
+     */
+    private static volatile AtomicBoolean inUse = new AtomicBoolean(false);
+
+    public ZKThread ConnectionString(String connectionString) {
+        ZKThread.connectionString = connectionString;
+        return this;
+    }
+
+    public ZKThread lockValue(String lockValue) {
+        ZKThread.lockValue = lockValue;
+        return this;
+    }
+
+    public ZKThread basePath(String basePath) {
+        ZKThread.basePath = basePath;
+        return this;
+    }
+
+    public ZKThread TimeOut(Integer timeOut) {
+        ZKThread.TimeOut = timeOut;
+        return this;
+    }
+
     public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
+        while(inUse.get()) {
+            logger.info("current session in use");
+            Thread.onSpinWait();
+        }
+        inUse.set(true);
         if(lockValue == null) {
             throw new IllegalAccessException("lockValue param can't be empty");
         }
-        while(!createFlag) {
+        while(!createFlag.getAcquire()) {
             Thread.onSpinWait();
         }
-        Object lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
-                ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-        logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
-        createFlag = false;
-        while(!deleteFlag) {
+        Object lockRes = null;
+        try {
+            lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
+            createFlag.set(false);
+        } catch (KeeperException | InterruptedException e) {
+            logger.info(e.getMessage());
+        }
+        if(lockRes == null) {
+            logger.info("getLock failure");
+            inUse.set(false);
+            keepLockAndUnLock();
+        }
+        while(!deleteFlag.getAcquire()) {
             Thread.onSpinWait();
         }
-        zooKeeper.delete("/zookeeper/lock/abab", -1);
-        deleteFlag = false;
+        zooKeeper.delete(basePath + "/" + lockValue, -1);
+        deleteFlag.set(false);
         logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
         count.addAndGet(1);
+        inUse.set(false);
         keepLockAndUnLock();
     }
 
