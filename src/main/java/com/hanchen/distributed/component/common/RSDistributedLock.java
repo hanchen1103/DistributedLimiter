@@ -139,7 +139,6 @@ public class RSDistributedLock {
             return new RSDistributedLock(this);
         }
 
-
     }
 
 }

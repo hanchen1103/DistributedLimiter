@@ -72,8 +72,6 @@ public class ZKDistributedThread implements Runnable {
                 logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
             } catch (InterruptedException | KeeperException e) {
                 logger.error(e.getMessage());
-            } finally {
-                isConnecting = false;
             }
         }
 
