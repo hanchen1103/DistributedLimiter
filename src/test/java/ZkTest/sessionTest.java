@@ -1,6 +1,7 @@
 package ZkTest;
 
 import com.hanchen.distributed.component.common.ZKDistributedThread;
+import com.hanchen.distributed.component.connectionpool.ZKThread;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -16,10 +17,14 @@ public class sessionTest {
         List<Thread> list = new ArrayList<>();
         String connectString = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
         int sessionTimeout = 4000;
-        ZKDistributedThread zkDistributedThread = new ZKDistributedThread().create("/zookeeper/lock",
-                    connectString, sessionTimeout, "aba");
-        Thread a = new Thread(zkDistributedThread);
+//        ZKDistributedThread zkDistributedThread = new ZKDistributedThread().create("/zookeeper/lock",
+//                    connectString, sessionTimeout, "aba");
+        Thread a = new Thread(new ZKThread());
         a.start();
+        Thread.sleep(1000);
+        ZKThread.createFlag = true;
+        Thread.sleep(500);
+        ZKThread.deleteFlag = true;
 //        for(int i = 0; i < 3; i ++) {
 //            ZKDistributedThread zkDistributedThread = new ZKDistributedThread().create("/zookeeper/lock",
 //                    connectString, sessionTimeout, "aba");
