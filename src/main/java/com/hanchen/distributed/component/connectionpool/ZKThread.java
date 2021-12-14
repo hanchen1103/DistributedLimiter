@@ -30,9 +30,12 @@ public class ZKThread implements Runnable{
 
     private static String connectionString;
 
-    private static Integer TimeOut;
+    private static Integer TimeOut = 4000;
 
-    public void keepLockAndUnLock() throws InterruptedException, KeeperException {
+    public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
+        if(lockValue == null) {
+            throw new IllegalAccessException("lockValue param can't be empty");
+        }
         while(!createFlag) {
             Thread.onSpinWait();
         }
@@ -45,19 +48,26 @@ public class ZKThread implements Runnable{
         }
         zooKeeper.delete("/zookeeper/lock/abab", -1);
         deleteFlag = false;
+        logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
         count.addAndGet(1);
-        logger.info(Thread.currentThread().getName() + "-unlock successfully");
         keepLockAndUnLock();
     }
 
     @Override
     public void run() {
+        if(connectionString == null ) {
+            try {
+                throw new IllegalAccessException("connectionString empty exception");
+            } catch (IllegalAccessException e) {
+                logger.error(e.getMessage());
+            }
+        }
         try {
              zooKeeper = new ZooKeeper(connectionString, TimeOut, event -> {
             });
             keepLockAndUnLock();
-        } catch (IOException | InterruptedException | KeeperException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException | KeeperException | IllegalAccessException e) {
+            logger.error(e.getMessage());
         }
     }
 }
