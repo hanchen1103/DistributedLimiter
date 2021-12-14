@@ -21,24 +21,48 @@ public class ZKThread implements Runnable, Serializable {
     @Serial
     private static final long serialVersionUID = -8215132982176492001L;
 
+    /**
+     * zk client
+     */
     public static ZooKeeper zooKeeper;
 
+    /**
+     * Whether to create a node (lock)
+     */
     public static volatile AtomicBoolean createFlag = new AtomicBoolean(false);
 
+    /**
+     * Whether to delete a node (unlock)
+     */
     public static volatile AtomicBoolean deleteFlag = new AtomicBoolean(false);
 
+    /**
+     * Session frequency
+     */
     private static AtomicLong count = new AtomicLong(0);
 
+    /**
+     * zk lock base path
+     */
     private static String basePath = "/zookeeper/lock";
 
+    /**
+     * lock name
+     */
     private static String lockValue;
 
+    /**
+     * zk connection string
+     */
     private static String connectionString;
 
+    /**
+     * zk connections timeout
+     */
     private static Integer TimeOut = 4000;
 
     /**
-     * 占用锁
+     * Whether any threads use this lock currently
      */
     private static volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
