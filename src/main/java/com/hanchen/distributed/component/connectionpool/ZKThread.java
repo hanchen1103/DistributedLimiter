@@ -29,12 +29,12 @@ public class ZKThread implements Runnable, Serializable {
     /**
      * Whether to create a node (lock)
      */
-    public static volatile AtomicBoolean createFlag = new AtomicBoolean(false);
+    public volatile Boolean createFlag = false;
 
     /**
      * Whether to delete a node (unlock)
      */
-    public static volatile AtomicBoolean deleteFlag = new AtomicBoolean(false);
+    public volatile Boolean deleteFlag = false;
 
     /**
      * Session frequency
@@ -66,7 +66,7 @@ public class ZKThread implements Runnable, Serializable {
      */
     private static volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
-    public ZKThread ConnectionString(String connectionString) {
+    public ZKThread connectionString(String connectionString) {
         ZKThread.connectionString = connectionString;
         return this;
     }
@@ -81,7 +81,7 @@ public class ZKThread implements Runnable, Serializable {
         return this;
     }
 
-    public ZKThread TimeOut(Integer timeOut) {
+    public ZKThread timeOut(Integer timeOut) {
         ZKThread.TimeOut = timeOut;
         return this;
     }
@@ -95,7 +95,7 @@ public class ZKThread implements Runnable, Serializable {
         if(lockValue == null) {
             throw new IllegalAccessException("lockValue param can't be empty");
         }
-        while(!createFlag.getAcquire()) {
+        while(!createFlag) {
             Thread.onSpinWait();
         }
         Object lockRes = null;
@@ -103,7 +103,7 @@ public class ZKThread implements Runnable, Serializable {
             lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
-            createFlag.set(false);
+            createFlag = false;
         } catch (KeeperException | InterruptedException e) {
             logger.info(e.getMessage());
         }
@@ -112,12 +112,12 @@ public class ZKThread implements Runnable, Serializable {
             inUse.set(false);
             keepLockAndUnLock();
         }
-        while(!deleteFlag.getAcquire()) {
+        while(!deleteFlag) {
             Thread.onSpinWait();
         }
         zooKeeper.delete(basePath + "/" + lockValue, -1);
-        deleteFlag.set(false);
-        logger.info(Thread.currentThread().getName() + "-unlock: " + basePath + "/" + lockValue + " successfully");
+        deleteFlag = false;
+        logger.info(Thread.currentThread().getName() + "-zookeeper freed lock successful - unlock is " + lockRes);
         count.addAndGet(1);
         inUse.set(false);
         keepLockAndUnLock();
