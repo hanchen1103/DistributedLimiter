@@ -24,7 +24,7 @@ public class ZKThread implements Runnable, Serializable {
     /**
      * zk client
      */
-    public static ZooKeeper zooKeeper;
+    private ZooKeeper zooKeeper;
 
     /**
      * Whether to create a node (lock)
@@ -39,50 +39,50 @@ public class ZKThread implements Runnable, Serializable {
     /**
      * Session frequency
      */
-    private static AtomicLong count = new AtomicLong(0);
+    private AtomicLong count = new AtomicLong(0);
 
     /**
      * zk lock base path
      */
-    private static String basePath = "/zookeeper/lock";
+    private String basePath = "/zookeeper/lock";
 
     /**
      * lock name
      */
-    private static String lockValue;
+    private String lockValue;
 
     /**
      * zk connection string
      */
-    private static String connectionString;
+    private String connectionString;
 
     /**
      * zk connections timeout
      */
-    private static Integer TimeOut = 4000;
+    private Integer TimeOut = 4000;
 
     /**
      * Whether any threads use this lock currently
      */
-    private static volatile AtomicBoolean inUse = new AtomicBoolean(false);
+    private volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
     public ZKThread connectionString(String connectionString) {
-        ZKThread.connectionString = connectionString;
+        this.connectionString = connectionString;
         return this;
     }
 
     public ZKThread lockValue(String lockValue) {
-        ZKThread.lockValue = lockValue;
+        this.lockValue = lockValue;
         return this;
     }
 
     public ZKThread basePath(String basePath) {
-        ZKThread.basePath = basePath;
+        this.basePath = basePath;
         return this;
     }
 
     public ZKThread timeOut(Integer timeOut) {
-        ZKThread.TimeOut = timeOut;
+        this.TimeOut = timeOut;
         return this;
     }
 
