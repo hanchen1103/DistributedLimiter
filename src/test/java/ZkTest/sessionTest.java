@@ -27,13 +27,18 @@ public class sessionTest {
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
 
-//        ZKConnectionEntity zkThread = new ZKConnectionEntity().connectionString("127.0.0.1:2181").
-//                    timeOut(4000).basePath("/zookeeper/lock").lockValue(String.valueOf(0));
-//        Thread thread = new Thread(zkThread);
-//        thread.start();
-//        zkThread.createFlag = true;
+        ZKConnectionEntity zkThread = new ZKConnectionEntity().connectionString("127.0.0.1:2181").
+                    timeOut(4000).basePath("/zookeeper/lock").lockValue(String.valueOf(0));
+        Thread thread = new Thread(zkThread);
+        thread.start();
+        zkThread.createFlag = true;
 
-       
+        ZKConnectionEntity zkThread1 = new ZKConnectionEntity().connectionString("127.0.0.1:2181").
+                timeOut(4000).basePath("/zookeeper/lock").lockValue(String.valueOf(1));
+        Thread thread1 = new Thread(zkThread1);
+        thread1.start();
+        zkThread1.createFlag = true;
+
 
     }
 }

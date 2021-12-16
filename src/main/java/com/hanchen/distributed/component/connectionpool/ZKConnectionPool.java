@@ -12,18 +12,18 @@ public class ZKConnectionPool {
 
     private static AtomicInteger connectionNum = new AtomicInteger(0);
 
-    private static AtomicInteger capacity = new AtomicInteger(20);
+    private static AtomicInteger capacity = new AtomicInteger(10);
 
     private static Queue<ZKConnectionEntity> ZKConnectionQueue;
 
     private static String connectionString = "127.0.0.1:2181";
 
-    private static AtomicInteger inUseConnectionSize = new AtomicInteger(20);
+    private static AtomicInteger inUseConnectionSize = new AtomicInteger(10);
 
 
     private static void connectionPollInitial() {
         int cap = capacity.get();
-        ZKConnectionQueue = new ArrayBlockingQueue<>(20);
+        ZKConnectionQueue = new ArrayBlockingQueue<>(10);
         for(int i = 0; i < cap; ++ i) {
             ZKConnectionEntity ZKConnectionEntity = new ZKConnectionEntity().connectionString(connectionString);
             new Thread(ZKConnectionEntity).start();
@@ -46,7 +46,7 @@ public class ZKConnectionPool {
             ZKConnectionPool.ZKConnectionQueue = substituteQueue;
             return ;
         }
-        if(inUsecurSize < cap * reduceLoadFactor && inUsecurSize >= 20) {
+        if(inUsecurSize < cap * reduceLoadFactor && inUsecurSize >= 10) {
             ZKConnectionPool.capacity.set(capacity.get() / 2);
             Queue<ZKConnectionEntity> substituteQueue = new ArrayBlockingQueue<>(capacity.get());
             for(int i = 0; i < capacity.get(); i ++) {
@@ -68,10 +68,12 @@ public class ZKConnectionPool {
     }
 
 
-    private ZKConnectionPool() {}
+    private ZKConnectionPool() {
+        connectionPollInitial();
+    }
 
     /**
-     * 单例模式获取，线程安全
+     * Singleton getPool
      */
     private static class ZKConnectionPoolInstance {
         private static final ZKConnectionPool INSTANCE = new ZKConnectionPool();
