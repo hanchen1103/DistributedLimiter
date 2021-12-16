@@ -87,10 +87,6 @@ public class ZKThread implements Runnable, Serializable {
     }
 
     public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
-        while(inUse.get()) {
-            logger.info("current session in use");
-            Thread.onSpinWait();
-        }
         inUse.set(true);
         if(lockValue == null) {
             throw new IllegalAccessException("lockValue param can't be empty");
@@ -132,9 +128,14 @@ public class ZKThread implements Runnable, Serializable {
                 logger.error(e.getMessage());
             }
         }
+        if(inUse.get()) {
+            logger.info("current session in use");
+            return ;
+        }
         try {
              zooKeeper = new ZooKeeper(connectionString, TimeOut, event -> {
             });
+
             keepLockAndUnLock();
         } catch (IOException | InterruptedException | KeeperException | IllegalAccessException e) {
             logger.error(e.getMessage());
