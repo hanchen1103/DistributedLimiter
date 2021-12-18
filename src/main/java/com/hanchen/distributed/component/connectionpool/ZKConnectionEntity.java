@@ -5,6 +5,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +29,12 @@ public class ZKConnectionEntity implements Runnable, Serializable {
     /**
      * Whether to create a node (lock)
      */
-    public volatile Boolean createFlag = false;
+    public volatile AtomicBoolean createFlag = new AtomicBoolean(false);
 
     /**
      * Whether to delete a node (unlock)
      */
-    public volatile Boolean deleteFlag = false;
+    public volatile AtomicBoolean deleteFlag = new AtomicBoolean(false);
 
     /**
      * Session frequency
@@ -65,6 +66,11 @@ public class ZKConnectionEntity implements Runnable, Serializable {
      */
     private volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
+    /**
+     * value to unlock
+     */
+    private volatile String keyValue;
+
     public ZKConnectionEntity connectionString(String connectionString) {
         this.connectionString = connectionString;
         return this;
@@ -85,18 +91,34 @@ public class ZKConnectionEntity implements Runnable, Serializable {
         return this;
     }
 
-    public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
-        if(inUse.get()) {
-            logger.info("current session in use");
-            return ;
+    public Boolean lock() {
+        if(createFlag.get()) {
+            logger.info("current thread is occupied");
+            return false;
         }
-        inUse.set(true);
+        createFlag.set(true);
+        Object lockRes = null;
+        try {
+            lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
+        } catch (KeeperException | InterruptedException e) {
+            logger.info(e.getMessage());
+        }
+        return true;
+    }
+
+    public boolean unlock() {
+
+    }
+
+    public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
         while(lockValue == null) {
             Thread.onSpinWait();
         }
-        while(!createFlag) {
-            Thread.onSpinWait();
-        }
+//        while(!createFlag) {
+//            Thread.onSpinWait();
+//        }
         Object lockRes = null;
         try {
             lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
