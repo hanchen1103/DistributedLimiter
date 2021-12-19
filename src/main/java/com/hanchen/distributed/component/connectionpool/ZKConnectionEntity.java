@@ -5,7 +5,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +28,12 @@ public class ZKConnectionEntity implements Runnable, Serializable {
     /**
      * Whether to create a node (lock)
      */
-    public volatile AtomicBoolean createFlag = new AtomicBoolean(false);
+    public volatile Boolean createFlag = false;
 
     /**
      * Whether to delete a node (unlock)
      */
-    public volatile AtomicBoolean deleteFlag = new AtomicBoolean(false);
+    public volatile Boolean deleteFlag = false;
 
     /**
      * Session frequency
@@ -67,9 +66,82 @@ public class ZKConnectionEntity implements Runnable, Serializable {
     private volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
     /**
-     * value to unlock
+     * flag 1: lock 0: unlock -1: wait
      */
-    private volatile String keyValue;
+    public volatile Integer flagToLockOrUnLock = -1;
+
+    private static final Object obj = new Object();
+
+
+    public ZKConnectionEntity initConnection() {
+        this.flagToLockOrUnLock = -1;
+        this.lockValue = null;
+        this.createFlag = false;
+        this.deleteFlag = false;
+        return this;
+    }
+
+    public void setFlagToLockOrUnLock(int isLock) {
+        synchronized (obj) {
+            if(inUse.get()) {
+                logger.info("current session is occupied");
+                return ;
+            }
+            inUse.set(true);
+            this.flagToLockOrUnLock = isLock;
+            obj.notify();
+        }
+    }
+
+
+    public void lock() {
+
+        Object lockRes = null;
+        try {
+
+            lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
+            createFlag = true;
+
+        } catch (KeeperException | InterruptedException e) {
+            logger.info(e.getMessage());
+        } finally {
+            inUse.set(false);
+        }
+        if(lockRes == null) {
+            logger.info("getLock failure");
+        }
+    }
+
+
+    public void unlock() {
+        try {
+            zooKeeper.delete(basePath + "/" + lockValue, -1);
+            deleteFlag = true;
+            logger.info(Thread.currentThread().getName() + "-zookeeper freed lock successful - unlock is " + basePath + "/" + lockValue);
+        } catch (InterruptedException | KeeperException e) {
+            logger.info("freedLock failure");
+        } finally {
+            inUse.set(false);
+        }
+    }
+
+    public void keepConnectionWaitLockAndUnLock() throws InterruptedException {
+        synchronized (obj) {
+            while(flagToLockOrUnLock == -1) {
+                obj.wait();
+            }
+        }
+        if(flagToLockOrUnLock == 1) {
+            lock();
+        } else {
+            unlock();
+        }
+        flagToLockOrUnLock = -1;
+        keepConnectionWaitLockAndUnLock();
+    }
+
 
     public ZKConnectionEntity connectionString(String connectionString) {
         this.connectionString = connectionString;
@@ -91,35 +163,15 @@ public class ZKConnectionEntity implements Runnable, Serializable {
         return this;
     }
 
-    public Boolean lock() {
-        if(createFlag.get()) {
-            logger.info("current thread is occupied");
-            return false;
-        }
-        createFlag.set(true);
-        Object lockRes = null;
-        try {
-            lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
-                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
-        } catch (KeeperException | InterruptedException e) {
-            logger.info(e.getMessage());
-        }
-        return true;
-    }
-
-    public boolean unlock() {
-
-    }
 
     public void keepLockAndUnLock() throws InterruptedException, KeeperException, IllegalAccessException {
         while(lockValue == null) {
             Thread.onSpinWait();
         }
-//        while(!createFlag) {
-//            Thread.onSpinWait();
-//        }
         Object lockRes = null;
+        while(!createFlag) {
+            Thread.onSpinWait();
+        }
         try {
             lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
@@ -156,8 +208,8 @@ public class ZKConnectionEntity implements Runnable, Serializable {
         try {
             zooKeeper = new ZooKeeper(connectionString, TimeOut, event -> {
             });
-            keepLockAndUnLock();
-        } catch (IOException | InterruptedException | KeeperException | IllegalAccessException e) {
+            keepConnectionWaitLockAndUnLock();
+        } catch (IOException | InterruptedException e) {
             logger.error(e.getMessage());
         }
     }

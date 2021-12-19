@@ -57,12 +57,12 @@ public class ZKConnectionPool {
 
     }
 
-    private static ZKConnectionEntity getConnection() {
+    public ZKConnectionEntity getConnection() {
         //checkCapacity();
         return ZKConnectionQueue.poll();
     }
 
-    private static Boolean addConnection(ZKConnectionEntity zkConnectionEntity) {
+    public Boolean addConnection(ZKConnectionEntity zkConnectionEntity) {
         //checkCapacity();
         return ZKConnectionQueue.offer(zkConnectionEntity);
     }

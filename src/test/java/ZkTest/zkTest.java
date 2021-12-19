@@ -5,23 +5,23 @@ import org.apache.zookeeper.ZooKeeper;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class zkTest {
 
-    public static CountDownLatch countDownLatch = new CountDownLatch(1);
+    /**
+     * Whether to create a node (lock)
+     */
+    public volatile int createFlag = 1;
 
-    static {
-        try {
-            ZooKeeper zooKeeper = new ZooKeeper("127.0.0.1:2181", 4000,event -> {
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    /**
+     * Whether to delete a node (unlock)
+     */
+    public volatile int deleteFlag = 1;
 
+    static final Object obj = new Object();
 
-    public static void main(String[] args) throws InterruptedException {
-        countDownLatch.await();
+    public volatile AtomicBoolean inUse = new AtomicBoolean(false);
 
-    }
+    public boolean isuse = false;
 }
