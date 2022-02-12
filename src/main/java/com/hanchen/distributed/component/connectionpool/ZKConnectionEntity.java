@@ -43,7 +43,7 @@ public class ZKConnectionEntity implements Runnable, Serializable {
     /**
      * zk lock base path
      */
-    private String basePath = "/zookeeper/lock";
+    private String basePath = "/zookeeper/lock/";
 
     /**
      * lock name
@@ -95,23 +95,27 @@ public class ZKConnectionEntity implements Runnable, Serializable {
 
 
     public void lock() {
-
         Object lockRes = null;
-        try {
 
-            lockRes = zooKeeper.create(basePath + "/" + lockValue, "0".getBytes(),
+        try {
+            //Long startTime = System.currentTimeMillis();
+            lockRes = zooKeeper.create(basePath + lockValue, "0".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-            logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
+            //Long endTime = System.currentTimeMillis();
+            //logger.info(Thread.currentThread().getName() + "-zookeeper get lock successful - lock is: " + lockRes);
             createFlag = true;
 
+            //System.out.println(endTime - startTime);
         } catch (KeeperException | InterruptedException e) {
             logger.info(e.getMessage());
         } finally {
             inUse.set(false);
         }
+
         if(lockRes == null) {
             logger.info("getLock failure");
         }
+
     }
 
 

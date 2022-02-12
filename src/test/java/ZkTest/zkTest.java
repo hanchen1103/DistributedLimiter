@@ -1,27 +1,21 @@
 package ZkTest;
 
-import com.hanchen.distributed.component.connectionpool.ZKConnectionEntity;
-import org.apache.zookeeper.ZooKeeper;
+
+import com.hanchen.distributed.component.watchimpl.WatchDeleteEventImpl;
+import org.apache.zookeeper.*;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class zkTest {
 
-    /**
-     * Whether to create a node (lock)
-     */
-    public volatile int createFlag = 1;
+    static ZooKeeper zk;
 
-    /**
-     * Whether to delete a node (unlock)
-     */
-    public volatile int deleteFlag = 1;
+    public static void main(String[] args) throws InterruptedException, KeeperException, IOException {
 
-    static final Object obj = new Object();
-
-    public volatile AtomicBoolean inUse = new AtomicBoolean(false);
-
-    public boolean isuse = false;
+        zk = new ZooKeeper("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183", 4000, new WatchDeleteEventImpl());
+        Long startTime = System.currentTimeMillis();
+        Long endTime = System.currentTimeMillis();
+        System.out.println(endTime - startTime);
+        Thread.sleep(1000000);
+    }
 }

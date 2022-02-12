@@ -1,5 +1,6 @@
 package com.hanchen.distributed.component.common;
 
+import com.hanchen.distributed.component.service.DistributedLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -10,7 +11,7 @@ import util.ScriptUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RSDistributedLock {
+public class RSDistributedLock implements DistributedLock {
 
     private static final Logger logger = LoggerFactory.getLogger(RSDistributedLock.class);
 
@@ -64,6 +65,7 @@ public class RSDistributedLock {
         loadScript();
     }
 
+    @Override
     public Boolean getLock() {
         List<String> keysList = new ArrayList<>();
         keysList.add(requestKey);
@@ -87,6 +89,7 @@ public class RSDistributedLock {
     }
 
 
+    @Override
     public void unLock() {
         List<String> keysList = new ArrayList<>();
         keysList.add(requestKey);
