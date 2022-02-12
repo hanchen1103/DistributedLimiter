@@ -30,16 +30,23 @@ public class ZKDistributedLockImpl implements Runnable{
 
     protected int sessionTimeout;
 
-    private volatile Boolean isLock = false;
+    private volatile Boolean isLock = null;
 
     private String currentLockName;
 
     private String preLockName;
 
-    private volatile Boolean unLock = false;
+    private volatile Boolean unLock = null;
 
     public void setIsLock() {
         this.isLock = true;
+    }
+
+    public boolean getIsLock() {
+        while(isLock == null) {
+            Thread.onSpinWait();
+        }
+        return this.isLock;
     }
 
     public String getCurrentLockName() {
@@ -102,8 +109,6 @@ public class ZKDistributedLockImpl implements Runnable{
 
     public void unLock() throws InterruptedException, KeeperException {
         logger.info("-unlock: " + currentLockName + " successfully");
-        List<String> list = zooKeeper.getChildren(basePath, false);
-        list.sort(String::compareTo);
         zooKeeper.delete(currentLockName, -1);
         this.isLock = false;
         this.unLock = false;
@@ -115,7 +120,7 @@ public class ZKDistributedLockImpl implements Runnable{
         try {
             create();
             getLock();
-            while(!unLock || !isLock) {
+            while(isLock == null || unLock == null || !isLock || !unLock) {
                 Thread.onSpinWait();
             }
             unLock();
