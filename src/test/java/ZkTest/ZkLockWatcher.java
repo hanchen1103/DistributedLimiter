@@ -1,6 +1,5 @@
 package ZkTest;
 
-import com.hanchen.distributed.component.common.ZKDistributedThread;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

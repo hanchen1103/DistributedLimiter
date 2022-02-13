@@ -3,8 +3,6 @@ package ZkTest;
 import com.hanchen.distributed.component.common.ZKDistributedLock;
 import org.apache.zookeeper.*;
 
-import java.io.IOException;
-
 public class testing2 {
 
     static ZooKeeper zk;
