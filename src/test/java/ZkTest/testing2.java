@@ -5,8 +5,6 @@ import org.apache.zookeeper.*;
 
 public class testing2 {
 
-    static ZooKeeper zk;
-
     public static void main(String[] args) {
         Long startTime = System.currentTimeMillis();
         for(int i = 0; i < 20; i ++) {
@@ -19,7 +17,6 @@ public class testing2 {
         }
         Long endTime = System.currentTimeMillis();
         System.out.println(endTime - startTime);
-
     }
 
 }
