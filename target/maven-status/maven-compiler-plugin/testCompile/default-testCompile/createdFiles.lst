@@ -1,8 +1,7 @@
 ZkTest/RsLockTest.class
 ZkTest/LimitTest.class
 ZkTest/testing2.class
-ZkTest/ZkLockWatcher.class
 ZkTest/zkTest.class
+ZkTest/sessionTest.class
 ZkTest/RsLockTest$myThread.class
-ZkTest/zkTest$testThread.class
 ZkTest/ZkTest2.class
